@@ -54,6 +54,9 @@ struct BrokenAPI {
   //! Set output file to `file`.
   static void setOutputFile(FILE* file);
 
+  //! Set the current context.
+  static void setContext(const char* file, int line);
+
   //! Initialize `Broken` framework.
   //!
   //! Returns `true` if `run()` should be called.
@@ -61,10 +64,22 @@ struct BrokenAPI {
     Entry onBeforeRun = (Entry)NULL,
     Entry onAfterRun = (Entry)NULL);
 
+  //! 
+  template<typename T>
+  static void expect(const T& exp, const char* fmt = NULL, ...) {
+    if (exp)
+      return;
+
+    va_list ap;
+    va_start(ap, fmt);
+    fail(fmt, ap);
+    va_end(ap);
+  }
+
   //! Log message, adds automatically new line if not present.
   static void info(const char* fmt, ...);
   //! Called on `EXPECT()` failure.
-  static void fail(const char* file, int line, const char* fmt, ...);
+  static void fail(const char* fmt, va_list ap);
 };
 
 // ============================================================================
@@ -88,24 +103,11 @@ struct BrokenAPI {
   ::BrokenAPI::info(__VA_ARGS__)
 
 //! Expect `_Exp_` to be truthy, fail otherwise.
-#define EXPECT(_Exp_, ...) \
+#define EXPECT(...) \
   do { \
-    if (!(_Exp_)) ::BrokenAPI::fail(__FILE__, __LINE__, __VA_ARGS__); \
+    ::BrokenAPI::setContext(__FILE__, __LINE__); \
+    ::BrokenAPI::expect(__VA_ARGS__); \
   } while(0)
-
-//! Optional, can be used to create main() that initializes `Broken` and runs
-//! all/specified tests.
-#define UNIT_MAIN(_AppString_) \
-  int main(int argc, char* argv[]) { \
-    bool shouldRun = ::BrokenAPI::init(argc, argv); \
-    \
-    BrokenAPI::info("%s", _AppString_ \
-    if (shouldRun) {\
-      BrokenAPI::run(); \
-    } \
-    \
-    return 0; \
-  }
 
 //! \}
 

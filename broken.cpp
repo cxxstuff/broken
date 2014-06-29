@@ -36,10 +36,18 @@ struct BrokenGlobal {
   // [Members]
   // --------------------------------------------------------------------------
 
+  // Application arguments.
   int _argc;
   const char** _argv;
+
+  // Output file.
   FILE* _file;
 
+  // Current context.
+  const char* _currentFile;
+  int _currentLine;
+
+  // Unit tests.
   BrokenAPI::Unit* _unitList;
   BrokenAPI::Unit* _unitRunning;
 };
@@ -180,7 +188,15 @@ void BrokenAPI::add(Unit* unit) {
 
 void BrokenAPI::setOutputFile(FILE* file) {
   BrokenGlobal& global = _brokenGlobal;
+
   global._file = file;
+}
+
+void BrokenAPI::setContext(const char* file, int line) {
+  BrokenGlobal& global = _brokenGlobal;
+
+  global._currentFile = file;
+  global._currentLine = line;
 }
 
 int BrokenAPI::run(int argc, const char* argv[],
@@ -188,6 +204,7 @@ int BrokenAPI::run(int argc, const char* argv[],
   Entry onAfterRun) {
 
   BrokenGlobal& global = _brokenGlobal;
+
   global._argc = argc;
   global._argv = argv;
 
@@ -218,9 +235,10 @@ int BrokenAPI::run(int argc, const char* argv[],
 }
 
 void BrokenAPI::info(const char* fmt, ...) {
-  FILE* dst = _brokenGlobal.getFile();
+  BrokenGlobal& global = _brokenGlobal;
+  FILE* dst = global.getFile();
 
-  const char* prefix = _brokenGlobal._unitRunning ? "  " : "";
+  const char* prefix = global._unitRunning ? "  " : "";
   size_t len = ::strlen(fmt);
 
   if (len != 0) {
@@ -237,22 +255,24 @@ void BrokenAPI::info(const char* fmt, ...) {
   ::fflush(dst);
 }
 
-void BrokenAPI::fail(const char* file, int line, const char* fmt, ...) {
-  FILE* dst = _brokenGlobal.getFile();
-  size_t len = ::strlen(fmt);
+void BrokenAPI::fail(const char* fmt, va_list ap) {
+  BrokenGlobal& global = _brokenGlobal;
+  FILE* dst = global.getFile();
 
+  ::fputs("  Failed!", dst);
+  if (fmt == NULL)
+    fmt = "";
+
+  size_t len = ::strlen(fmt);
   if (len != 0) {
-    va_list ap;
-    va_start(ap, fmt);
-    ::fputs("  Failed! ", dst);
+    ::fputs(" ", dst);
     ::vfprintf(dst, fmt, ap);
-    va_end(ap);
   }
 
   if (len > 0 && fmt[len - 1] != '\n')
     ::fputs("\n", dst);
 
-  ::fprintf(dst, "  File: %s (Line: %d)\n", file, line);
+  ::fprintf(dst, "  File: %s (Line: %d)\n", global._currentFile, global._currentLine);
   ::fflush(dst);
 
   ::exit(1);
