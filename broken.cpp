@@ -4,6 +4,7 @@
 // [License]
 // Public Domain (Unlicense)
 
+// [Dependencies - Broken]
 #include "./broken.h"
 
 // ============================================================================
@@ -125,30 +126,24 @@ static void BrokenAPI_runUnit(BrokenAPI::Unit* unit) {
 static void BrokenAPI_runAll() {
   BrokenAPI::Unit* unit = _brokenGlobal._unitList;
 
-  if (unit != NULL) {
-    size_t count = 0;
+  bool hasUnits = unit != NULL;
+  size_t count = 0;
 
-    do {
-      if (BrokenAPI_canRun(unit)) {
-        BrokenAPI_runUnit(unit);
-        count++;
-      }
-
-      unit = unit->next; 
-    } while (unit != NULL);
-
-    if (count) {
-      INFO("\nSuccess:");
-      INFO("  All tests passed!");
+  while (unit != NULL) {
+    if (BrokenAPI_canRun(unit)) {
+      BrokenAPI_runUnit(unit);
+      count++;
     }
-    else {
-      INFO("\nWarning:");
-      INFO("  No units matched the filter!");
-    }
+    unit = unit->next; 
+  }
+
+  if (count) {
+    INFO("\nSuccess:");
+    INFO("  All tests passed!");
   }
   else {
     INFO("\nWarning:");
-    INFO("  No units defined!");
+    INFO("  No units %s!", hasUnits ? "matched the filter" : "defined");
   }
 }
 
