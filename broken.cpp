@@ -187,11 +187,13 @@ void BrokenAPI::setOutputFile(FILE* file) {
   global._file = file;
 }
 
-void BrokenAPI::setContext(const char* file, int line) {
+int BrokenAPI::setContext(const char* file, int line) {
   BrokenGlobal& global = _brokenGlobal;
 
   global._currentFile = file;
   global._currentLine = line;
+
+  return 1;
 }
 
 int BrokenAPI::run(int argc, const char* argv[],
@@ -229,7 +231,7 @@ int BrokenAPI::run(int argc, const char* argv[],
   return 0;
 }
 
-void BrokenAPI::info(const char* fmt, ...) {
+int BrokenAPI::info(const char* fmt, ...) {
   BrokenGlobal& global = _brokenGlobal;
   FILE* dst = global.getFile();
 
@@ -248,9 +250,10 @@ void BrokenAPI::info(const char* fmt, ...) {
     ::fputs("\n", dst);
 
   ::fflush(dst);
+  return 1;
 }
 
-void BrokenAPI::fail(const char* fmt, va_list ap) {
+int BrokenAPI::fail(const char* fmt, va_list ap) {
   BrokenGlobal& global = _brokenGlobal;
   FILE* dst = global.getFile();
 
@@ -271,4 +274,5 @@ void BrokenAPI::fail(const char* fmt, va_list ap) {
   ::fflush(dst);
 
   ::exit(1);
+  return 1;
 }

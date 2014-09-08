@@ -59,7 +59,7 @@ struct BrokenAPI {
   //! This is called by `EXPECT` macro to set the correct `file` and `line`,
   //! because `EXPECT` macro internally calls `expect()` function, which does
   //! change the original file & line to non-interesting `broken.h`.
-  static void setContext(const char* file, int line);
+  static int setContext(const char* file, int line);
 
   //! Initialize `Broken` framework.
   //!
@@ -70,20 +70,21 @@ struct BrokenAPI {
 
   //! Used internally by `EXPECT` macro.
   template<typename T>
-  static void expect(const T& exp, const char* fmt = NULL, ...) {
+  static int expect(const T& exp, const char* fmt = NULL, ...) {
     if (exp)
-      return;
+      return 1;
 
     va_list ap;
     va_start(ap, fmt);
     fail(fmt, ap);
     va_end(ap);
+    return 0;
   }
 
   //! Log message, adds automatically new line if not present.
-  static void info(const char* fmt, ...);
+  static int info(const char* fmt, ...);
   //! Called on `EXPECT()` failure.
-  static void fail(const char* fmt, va_list ap);
+  static int fail(const char* fmt, va_list ap);
 };
 
 // ============================================================================
@@ -102,16 +103,15 @@ struct BrokenAPI {
   \
   static void unit_##_Name_##_entry(void)
 
+//! #define INFO(...)
+//!
 //! Informative message printed to `stdout`.
-#define INFO(...) \
-  ::BrokenAPI::info(__VA_ARGS__)
+#define INFO ::BrokenAPI::setContext(__FILE__, __LINE__) && ::BrokenAPI::info
 
+//! #define INFO(_Exp_ [, _Format_ [, ...]])
+//!
 //! Expect `_Exp_` to be true or evaluates to true, fail otherwise.
-#define EXPECT(...) \
-  do { \
-    ::BrokenAPI::setContext(__FILE__, __LINE__); \
-    ::BrokenAPI::expect(__VA_ARGS__); \
-  } while(0)
+#define EXPECT ::BrokenAPI::setContext(__FILE__, __LINE__) && ::BrokenAPI::expect
 
 //! \}
 
