@@ -8,11 +8,31 @@
 #ifndef BROKEN_INTERNAL_H
 #define BROKEN_INTERNAL_H
 
-// [Dependencies - C]
+// [Dependencies]
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+// ============================================================================
+// [Broken - Detection]
+// ============================================================================
+
+#if defined(__GNUC__) && defined(__GNUC_MINOR__)
+# if (__GNUC__ * 1000 + __GNUC_MINOR__) >= 3004
+#  define BROKEN_NOINLINE __attribute__((__noinline__))
+# endif
+#elif defined(__clang__)
+# if __has_attribute(__noinline__)
+#  define BROKEN_NOINLINE __attribute__((__noinline__))
+# endif
+#elif defined(_MSC_VER)
+# define __declspec(noinline)
+#endif
+
+#if !defined(BROKEN_NOINLINE)
+# define BROKEN_NOINLINE
+#endif
 
 // Hide everything when using Doxygen. Ideally this can be protected by a macro,
 // but there is not globally and widely used one across multiple projects.
@@ -70,7 +90,7 @@ struct BrokenAPI {
 
   //! Used internally by `EXPECT` macro.
   template<typename T>
-  static int expect(const T& exp, const char* fmt = NULL, ...) {
+  BROKEN_NOINLINE static int expect(const T& exp, const char* fmt = NULL, ...) {
     if (exp)
       return 1;
 
@@ -112,6 +132,12 @@ struct BrokenAPI {
 //!
 //! Expect `_Exp_` to be true or evaluates to true, fail otherwise.
 #define EXPECT ::BrokenAPI::setContext(__FILE__, __LINE__) && ::BrokenAPI::expect
+
+// ============================================================================
+// [Broken - Cleanup]
+// ============================================================================
+
+#undef BROKEN_NOINLINE
 
 //! \}
 

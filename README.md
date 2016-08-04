@@ -3,10 +3,8 @@ Broken
 
 Lightweight Unit Testing for C++.
 
-Official Repository
--------------------
-
-https://github.com/kobalicek/broken
+  * [Official Repository (kobalicek/broken)](https://github.com/kobalicek/broken)
+  * [Public Domain](http://unlicense.org/)
 
 Introduction
 ------------

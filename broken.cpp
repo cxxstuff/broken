@@ -4,7 +4,7 @@
 // [License]
 // Public Domain (Unlicense)
 
-// [Dependencies - Broken]
+// [Dependencies]
 #include "./broken.h"
 
 // ============================================================================
@@ -134,7 +134,7 @@ static void BrokenAPI_runAll() {
       BrokenAPI_runUnit(unit);
       count++;
     }
-    unit = unit->next; 
+    unit = unit->next;
   }
 
   if (count) {
@@ -154,7 +154,7 @@ static void BrokenAPI_listAll() {
     INFO("Units:");
     do {
       INFO("  %s", unit->name);
-      unit = unit->next; 
+      unit = unit->next;
     } while (unit != NULL);
   }
   else {
