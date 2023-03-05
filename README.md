@@ -32,7 +32,7 @@ Documentation
   - `INFO(...)` - Print an informative message to `stdout` or other `FILE*` if configured.
 
   - `EXPECT(_Ext_, ...)` - Expect `_Ext_` to be truthy, fail otherwise. This is the main macro used during testing. If the expression `_Exp_` converts to `false` your unit test failed and you will receive a report.
-  
+
 Installation
 ------------
 
@@ -46,7 +46,7 @@ Let's start with a simple function that you plan to test and assume that it's st
 ```C++
 static bool safeToMul(uint32_t a, uint32_t b) {
   uint64_t result = static_cast<uint64_t>(a) * b;
-  return result < 0xFFFFFFFFU;
+  return result < 0xFFFFFFFFu;
 }
 ```
 
@@ -60,18 +60,18 @@ As a convention there should be defined macro when building the unit-test itself
 
 static bool safeToMul(uint32_t a, uint32_t b) {
   uint64_t result = static_cast<uint64_t>(a) * b;
-  return result < 0xFFFFFFFFU;
+  return result < 0xFFFFFFFFu;
 }
 
 #if defined(BROKEN_EXAMPLE_TEST)
 UNIT(base_safe_to_mul) {
-  EXPECT(safeToMul(0, 0), "Should allow 0 * 0");
-  EXPECT(safeToMul(1, 1), "Should allow 1 * 1");
+  EXPECT_TRUE(safeToMul(0, 0)); // Safe to mul 0 * 0.
+  EXPECT_TRUE(safeToMul(1, 1)); // Safe to mul 1 * 1.
 
-  EXPECT(safeToMul(0xFFFFFFFF, 0), "Doesn't overflow");
-  EXPECT(safeToMul(0xFFFFFFFF, 1), "Doesn't overflow"); // This test fails!
+  EXPECT_FALSE(safeToMul(0xFFFFFFFF, 2)); // Unsafe as it overflows, expected FALSE.
 
-  EXPECT(!safeToMul(0xFFFFFFFF, 2), "Unsafe as it overflows");
+  EXPECT_TRUE(safeToMul(0xFFFFFFFF, 0)); // Doesn't overflow.
+  EXPECT_TRUE(safeToMul(0xFFFFFFFF, 1)); // This test fails (there is a bug in the code)!
 }
 #endif // BROKEN_EXAMPLE_TEST
 ```
@@ -111,7 +111,7 @@ Command Line
 The unit-test executable provides several command line arguments:
 
   - `--help` - Display all command line arguments supported.
-  - `--list` - List all tests.  
+  - `--list` - List all tests.
   - `--run-some-test` - Run `some_test` only, specifying more tests works as expected.
   - `--run-some-*` - Run all tests matching `some-*`, for simplicity wildcard matching is only supported if it is specified at the end of the string.
-  - `--run-all` - Run all tests (enabled by default). 
+  - `--run-all` - Run all tests (enabled by default).

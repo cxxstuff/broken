@@ -1,8 +1,8 @@
-CMake_Minimum_Required(VERSION 2.8.8)
-Project(BrokenTest C CXX)
+cmake_minimum_required(VERSION 3.8)
+project(BrokenTest CXX)
 
-Add_Definitions(-DBROKEN_EXAMPLE_TEST)
-Add_Executable(broken_test
+add_definitions(-DBROKEN_EXAMPLE_TEST)
+add_executable(broken_test
   broken.cpp
   broken.h
   broken_main.cpp
