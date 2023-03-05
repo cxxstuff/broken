@@ -41,6 +41,7 @@ UNIT(base_safe_to_mul) {
   EXPECT_FALSE(safeToMul(0xFFFFFFFF, 2)); // Unsafe as it overflows, expected FALSE.
 
   EXPECT_TRUE(safeToMul(0xFFFFFFFF, 0)); // Doesn't overflow.
-  EXPECT_TRUE(safeToMul(0xFFFFFFFF, 1)); // This test fails (there is a bug in the code)!
+  EXPECT_TRUE(safeToMul(0xFFFFFFFF, 1))
+    .message("Failed to multiply the maximum number with 1");
 }
 #endif // BROKEN_EXAMPLE_TEST

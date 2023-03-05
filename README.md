@@ -25,13 +25,27 @@ Design Goals
 Documentation
 -------------
 
-`Broken` defines only 3 macros:
+`Broken` defines the following macros that can be used for testing:
 
-  - `UNIT(_Name_)` - Use this to create a new unit test. `_Name_` can only contain ASCII characters, numbers and underscore. It has the same rules as identifiers in C and C++. Dashes `-` are automatically converted to underscores `_` when specifying a test from command line.
+  - `UNIT(name [, priority])` - Use this to create a new unit test. `name` can only contain ASCII characters, numbers and underscore. It has the same rules as identifiers in C and C++. Dashes `-` are automatically converted to underscores `_` when specifying a test from command line. Note that the optional `priority` argument can be used to order the tests. Tests are sorted by priority, then by name.
+  - `INFO(...)` - Print an informative message to `stdout` or other `FILE*` compatible output stream, if configured.
+  - `EXPECT_EQ(a, b)` - Expects `a == b`, fail otherwise.
+  - `EXPECT_NE(a, b)` - Expects `a != b`, fail otherwise.
+  - `EXPECT_GT(a, b)` - Expects `a > b`, fail otherwise.
+  - `EXPECT_GE(a, b)` - Expects `a >= b`, fail otherwise.
+  - `EXPECT_LT(a, b)` - Expects `a < b`, fail otherwise.
+  - `EXPECT_LE(a, b)` - Expects `a <= b`, fail otherwise.
+  - `EXPECT_TRUE(exp)` - Expects `exp == true`, fail otherwise.
+  - `EXPECT_FALSE(exp)` - Expects `exp == false`, fail otherwise.
+  - `EXPECT_NULL(exp)` - Expects `exp == nullptr`, fail otherwise.
+  - `EXPECT_NOT_NULL(exp)` - Expects `exp != nullptr`, fail otherwise.
 
-  - `INFO(...)` - Print an informative message to `stdout` or other `FILE*` if configured.
+Additionally, each `EXPECT...()` test can be enhanced with a message that would be printed when the test fails, the syntax is to use `.message(...)`, which accepts C-like `sprintf()` formated text:
 
-  - `EXPECT(_Ext_, ...)` - Expect `_Ext_` to be truthy, fail otherwise. This is the main macro used during testing. If the expression `_Exp_` converts to `false` your unit test failed and you will receive a report.
+```C++
+EXPECT_NOT_NULL(ptr)
+  .message("ptr is null, which means that we have failed to allocate enough memory to represent the required vector of %zu size", size);
+```
 
 Installation
 ------------
@@ -94,7 +108,7 @@ Running base_safe_to_mul
   File: ..\broken_example.cpp (Line: 15)
 ```
 
-Since there is a bug in the sample test-case it shows it, including the message associated with `EXPECT` and file/line information. If you fix the code (quiz for you) it should print something similar to:
+Since there is a bug in the sample test-case it shows it, including the message associated with `EXPECT...` and file/line information. If you fix the code (quiz for you) it should print something similar to:
 
 ```
 Running base_safe_to_mul
